@@ -40,8 +40,12 @@ exports.addWord = function (req, res){
 exports.spell = function(req, res){
 	var query = req.query.text;
 	var results = {};
+	var reqCallback = false;
 
-
+	// if callback query parameter - then return correct result
+	if(req.query.callback) {
+		reqCallback = req.query.callback;
+	}
 
 
 // request to send
@@ -83,8 +87,13 @@ exports.spell = function(req, res){
 					cb();
 				});
 
-	//			console.log(results);
+			console.log(results);
 			}, function(err) {
+				if(reqCallback) {
+					var str = reqCallback + "(" + JSON.stringify(results) +")";
+					res.send(str);
+					return;
+				}
 				res.send(JSON.stringify(results));
 			});
 		} else {
@@ -94,6 +103,11 @@ exports.spell = function(req, res){
 				client.get(query.substr(startPos,wordLength),function(err,reply) {
 					if(!reply) { // if not a valid word - add to results
 						results[query.substr(startPos,wordLength)] = options.split("\t");
+					}
+					if(reqCallback) {
+						var str = reqCallback + "(" + JSON.stringify(results) +")";
+						res.send(str);
+						return;
 					}
 					res.send(JSON.stringify(results));
 				});
