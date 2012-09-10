@@ -82,12 +82,15 @@ exports.spell = function(req, res){
 				var options = key["$t"];
 				client.get(query.substr(startPos,wordLength),function(err,reply) {
 					if(!reply) { // if not a valid word - add to results
-						results[query.substr(startPos,wordLength)] = options.split("\t");
+						if(options.indexOf("\t")) {
+							results[query.substr(startPos,wordLength)] = options.split("\t");
+						} else {
+							results[query.substr(startPos,wordLength)] = options;
+						}
 					}
 					cb();
 				});
 
-			console.log(results);
 			}, function(err) {
 				if(reqCallback) {
 					var str = reqCallback + "(" + JSON.stringify(results) +")";
